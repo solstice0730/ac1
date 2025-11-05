@@ -1,9 +1,9 @@
 name: Generate and Upload Artifact
 
-on: 
+on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   generate-file:
