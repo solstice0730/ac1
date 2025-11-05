@@ -1,14 +1,40 @@
-name: Print_info
-on: [push, workflow_dispatch]
+name: Generate and Upload Artifact
+
+on: 
+  push:
+    branches:
+      - master
+
 jobs:
-  cond:
-     runs-on: ubuntu-latest
-     steps:
-      - name: Conditional
-        if: ${{github.event_name == 'push' }} 
-        run: echo "This runs on push events only."
-  info:
+  generate-file:
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Output Github context
-        run: echo "${{ github.repository }}"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Run create_txt script
+        run: python create_txt.py
+
+      - name: Upload data.txt as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-file
+          path: data.txt
+
+  download-file:
+    needs: generate-file
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: data-file
+      - name: Print data.txt
+        run: cat data.txt
